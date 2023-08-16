@@ -243,9 +243,9 @@ Object.getPrototypeOf(x);
 {constructor: f, ___defineGetter___: f, ___defineSetter___: f, ___hasOwnProperty___:f, ___lookupGetter___: f, ...} 
 
 every object having a [[Prototype]], creates a way for any two or more objects to be linked
-A regerence can be made this the [[Prototype]] internal property from one object to another via the prototype property 
+A reference can be made this the [[Prototype]] internal property from one object to another via the prototype property 
 
-1. I try to access a property or method of an object, JS first searches on the object iself. 
+1. I try to access a property or method of an object, JS first searches on the object itself. 
 2. If it is not found, it will search the object's [[Prototype]]
 3. If after consulting both the object and its [[Prototype]] still no match is found, JS will check the prototype of the linked object
 4. It will continue searching until the end of the prototype chain is reached 
@@ -674,5 +674,672 @@ alert( speedy.stomach ); // apple
 alert( lazy.stomach ); // <nothing>
 */
 
+/*
+"this" is the context of a function call; there are 4 types of function calls in JS:
+1. function call: ex. alert("Hello World!")
+2. method call: ex. console.log("Hello World!")
+3. constructor call: new RegExp("\\d")
+4. indirect call: alert.call(undefined, "Hello World!")
 
+invocation - calling the function ex. parseInt("15")
+context - value of "this" within the function body
+scope - set of variables and functions accessible within a function body
+*/
+
+/*
+1.1 this in a function invocation
+expression that evaluates to a function object is followed by an open parenthesis, a comma separated list of argument expressions, 
+and a close parenthesis
+*/
+function hello(name) {
+    return "Hello " + name + "!";
+}
+
+// function invocation; hello expression evaluates to a function object, followed by () with the "World" argument
+const message = hello("World");
+
+/* function invocation cannot be a property accessor obj.myFunc() - that is a method invocation
+another ex. [1, 5].join(",") is not a function invocation, but a method call */
+
+// IIFE - first () is an expression that evalulates to a function object, followed by another () with the argument
+// IIFE - immediately-invoked function expression
+const message1 = (function(name) {
+    return "Hello " + name + "!";
+})("World");
+
+/* this - the global object, determined by the execution environment
+in a browser, the global object is the window object
+*/
+
+
+function sum(a, b) {
+    console.log(this === window);   // true
+
+    // add "myNumber" property to global object
+    this.myNumber = 20; 
+
+    return a + b;
+}
+// sum is invoked as a function
+// this in sum() is a global object (window)
+sum(15, 16);    // 31; this or window is automatically set as the global object
+window.myNumber;    // 20
+
+// this also equals the global object when it is used outside of any function scope
+console.log(this === window);   // true
+
+this.myString = "Hello World!";
+console.log(window.myString);   // "Hello World!"
+
+/*
+1.2 this in a function invocation, strict mode
+this is undefined in a function invocation in strict mode
+to enable strict mode, place "use strict" at the top of a function body, and the execution context is not the global object
+anymore
+*/
+function multiply(a, b) {
+    "use strict";   // enable the strict mode
+    console.log(this === undefined);    // true
+    return a * b; 
+}
+
+// multiply() function invocation with strict mode enabled
+// this in multiply() is undefined
+multiply(2, 5);     // 10
+
+// strict mode will also be active in the inner scopes (for all functions declared inside)
+function execute() {
+    "use strict";
+
+    function concat(str1, str2) {
+        // strict mode is enabled too
+        console.log(this === undefined);    // true
+        return str1 + str2;
+    }
+
+    return concat("Hello ", "World!");  // "Hello World!"
+}
+
+console.log(execute());
+
+// a single JS file may contain both strict and non-strict modes
+function nonStrictSum(a, b) {
+    console.log(this === window);   // true
+    return a + b;
+}
+
+function strictSum(a, b) {
+    "use strict";
+    console.log(this === undefined);    // true
+    return a + b;
+}
+
+// nonStrictSum() is invoked as a function in non-strict mode, and this is the window object
+console.log(nonStrictSum(5, 6));
+
+// strictSum() is invoked as a function in strict mode, and this is undefined
+console.log(strictSum(8, 12));
+
+/*
+1.3 pitfall: this in an inner function
+- "this" is not always the same in an inner function as in the outer function
+- context of the inner function (except arrow function) depends only on its own invocation type, but not on the outer function's context
+*/
+// to make this have a desired value, modify the inner function's context with indirect invocation, using .call() or .apply() 
+// or create a bound function
+const numbers = {
+    numberA: 5,
+    numberB: 10,
+
+    sum: function() {
+        console.log(this === numbers);  // true
+
+        function calculate() {
+            // this is window or undefined in strict mode
+            // calculate() is not invoked correctly
+            console.log(this === numbers);  // false 
+
+            return this.numberA + this.numberB;
+        }
+
+        return calculate(); // NaN or throws TypeError in strict mode
+    }
+};
+
+numbers.sum(); 
+
+// calculate() must execute with the same context as numbers.sum() to access this.numberA and this.numberB
+// manually change the context of calculate() to the desired one by calling calculate.call(this)
+const numbers1 = {
+    numberA: 5,
+    numberB: 10,
+    sum: function() {
+        console.log(this === numbers1); // true
+
+        function calculate() {
+            console.log(this === numbers1); // true
+            return this.numberA + this.numberB;
+        }
+
+        // use .call() method to modify the context to value specified as the first parameter
+        // this.numberA + this.numerB is the same as numbers1.numberA + numbers1.numbersB
+        return calculate.call(this);
+    } 
+};
+
+numbers1.sum(); // 15
+
+// slightly better solution using an arrow function
+const numbers2 = {
+    numberA: 5,
+    numberB: 10,
+    sum: function() {
+        console.log(this === numbers2); // true
+
+        // arrow function resolves "this" lexically, using "this" value of numbers.sum() method
+        const calculate = () => {
+            console.log(this === numbers2); // true
+            return this.numberA + this.numberB;
+        }
+
+        return calculate();
+    }
+};
+
+numbers2.sum(); // 15
+
+// method - function stored in a property of an object
+const myObject1 = {
+    // helloMethod is a method of myObject
+    helloMethod: function() {
+        return "Hello World!";
+    }
+};
+
+// myObject.helloMethod is a property accessor; it's a method invocation of helloMethod on the object myObject
+const message2 = myObject1.helloMethod();
+
+/* more examples of method calls:
+[1, 2].join(",") 
+/\s/.test("beautiful world") 
+method invocation requires a property accessor to call the function, obj.myFunc()
+while function invocation does not myFunc() */
+
+/* 2.1 this in a method invocation 
+"this" is the object that owns the method */
+const calc = {
+    num: 0,
+    increment() {
+        console.log(this === calc);     // true
+
+        // increment the number property
+        this.num += 1;
+        return this.num;
+    }
+} 
+//  context of increment function is calc object
+calc.increment();   // 1
+calc.increment();   // 2
+
+/* JS object inherits a method from its prototype
+when the inherited method is invoked on the object, the context of the invocation is still the object itself */
+
+// Object.create() creates a new obejct myDog and sets its prototype from the first argument
+// myDog object inherits sayName method
+const myDog = Object.create({
+    sayName() {
+        console.log(this === myDog);    // true
+        return this.name;
+    }
+});
+
+myDog.name = "Milo";
+
+// method invocation; this, the context of invocation, is myDog
+myDog.sayName();
+
+// ECMAScript2015 class syntax
+class Planet {
+    constructor(name) {
+        this.name = name;
+    }
+
+    getName() {
+        console.log(this === earth);    // true
+        return this.name;
+    }
+}
+
+const earth = new Planet('Earth');
+
+// method invocation. the context is earth
+earth.getName();    // "Earth"
+
+/* 2.2 pitfall: separating method from its object 
+a method can be extracted from an object into a separated variable
+const alone = myObj.myMethod
+when the method is called alone, alone(), detached from the original object, a function invocation happens, 
+and this is the global object, window or undefined in strict mode 
+
+A bound function
+const alone = myObj.myMethod.bind(myObj)    using .bind() fixes the context by binding this the object that owns the method
+*/
+
+// defines Pet constructor and makes an instance of it: myCat
+// setTimeout() after 1 second, logs myCat object information
+function Pet(type, legs) {
+    this.type = type;
+    this.legs = legs;
+
+    this.logInfo = function() {
+        console.log(this === myCat);    // false 
+        console.log(`The ${this.type} has ${this.legs} legs`);
+    }
+}
+
+const myCat = new Pet("Cat", 4);
+
+// logs "The undefined has undefined legs or throws a TypeError in strict mode"
+setTimeout(myCat.logInfo, 1000);    // the method is separated from its object when passed as a parameter setTimeout(myCat.logInfo)
+
+/* setTimeOut(myCat.logInfo)
+is equivalent to:
+
+const extractedLogInfo = myCat.logInfo;
+setTimeout(extractedLogInfo); 
+
+a function bounds with an object using .bind() method: the separate method is bound with myCat object, the context problem is solved
+*/
+
+function Pet1(type, legs) {
+    this.type = type;
+    this.legs = legs;
+
+    this.logInfo = function() {
+        console.log(this === myCat);    // true
+        console.log(`The ${this.type} has ${this.legs} legs`);
+    };
+}
+
+const myCat1 = new Pet1("Cat", 4);
+
+// Create a bound function
+const boundLogInfo = myCat1.logInfo.bind(myCat);
+
+setTimeout(boundLogInfo, 1000); // logs "The Cat has 4 legs"
+// myCat.logIno.bind(myCat) returns a new function that executes exactly like logInfo, but has this as myCat, even in a function invocation
+
+// could also define logInfo() method as an arrow function, which binds this lexically 
+function Pet2(type, legs) {
+    this.type = type;
+    this.legs = legs;
+
+    this.logInfo = () => {
+        console.log( this === myCat);   // true
+        console.log(`The ${this.type} has ${this.legs} legs`);
+    };
+}
+
+const myCat2 = new Pet2("Cat", 4);
+
+// logs "The Cat has 4 legs"
+setTimeout(myCat2.logInfo, 1000);  
+
+// could also use classes and bind this to the class instance in my method, use the arrow function as a class property
+class Pet3 {
+    constructor(type, legs) {
+        this.type = type;
+        this.legs = legs;
+    }
+
+    logInfo = () => {
+        console.log( this === myCat);   // true
+        console.log(`The ${this.type} has ${this.legs} legs`);
+    }
+}
+
+const myCat3 = new Pet3("Cat", 4);
+
+// logs "The Cat has 4 legs"
+setTimeout(myCat3.logInfo, 1000);  
+
+/* constructor invocation
+3.1 this in a constructor inovocation 
+
+declares a function Country() and then invokes it as a constructor */
+function Country(name, traveled) {
+    this.name = name ? name : "United Kingdom";
+    this.traveled = Boolean(traveled);  // transform to a boolean
+}
+
+Country.prototype.travel = function() {
+    this.traveled = true;
+};
+
+// constructor invocation of Country function; creates a new object which name property is "France"
+const france = new Country("France", false);
+
+// constructor invocation 
+const unitedKingdom = new Country;
+
+france.travel;    
+
+// ECMAScript 2015, JS allows the defining of constructors using class syntax
+class City {
+    // handles object's initialization; this is the newly created object
+    constructor(name, traveled) {
+        this.name = name; 
+        this.traveled = false;
+    }
+
+    travel() {
+        this.traveled = true;
+    }
+}
+
+// constructor invocation 
+const paris = new City("Paris", false);
+
+paris.travel;  
+
+/*  the constructor function initializes the instance
+a constructor call creates a new empty object, which inherits properties from the constructor's prototype
+with the property accessor, new myObject.myFunction, JS performs a constructor invocation, not a method invocation
+
+new myObject.myFunction() - function is first extracted using the property accessor extractedFunction = myObject.myFunction,
+then invoked as a constructor to create a new object: new extractedFunction(). 
+*/
+
+function Foo() {
+    // this is fooInstance
+    // the object is initialized, this.property is assigned 
+    this.property = "Default Value";
+}
+
+// constructor invocation where the context is fooInstance
+const fooInstance = new Foo();
+fooInstance.property;   // "Default Value"
+
+// using class syntax available in ES2015, only the initialization happens in the constructor method
+class Bar {
+    constructor() {
+        // this is barInstance
+        this.property = "Default Value";
+    }
+}
+// Constructor invocation- JS creates an empty object and makes it the context of the constructor()
+// then I can add properties to the object using this keyword
+const barInstance = new Bar();
+barInstance.property;
+
+/* 3.2 pitfall: forgetting about new 
+Some JS functions create instances when invoked as functions ex. RegExp */
+const reg1 = new RegExp("\\w+");
+const reg2 = RegExp("\\w+");
+
+reg1 instanceof RegExp; // true
+reg2 instanceof RegExp;  // true
+
+// JS creates equivalent regular expression objects
+reg1.source === reg2.source;    // true
+
+/* using a function invocation to create objects is a potential problem because some constructors may omit the logic to 
+initialize the object when new keyword is missing */
+
+// Vehicle function sets type and wheelsCount properties on the context object
+function Vehicle(type, wheelsCount) {
+    this.type = type;   
+    this.wheelsCount = wheelsCount; 
+    return this;    
+}
+
+// an object car is return which has the correct properties
+const car = Vehicle("Car", 4);
+car.type;   // "Car"
+car.wheelsCount;    // 4
+
+// this is window object, so a new object is not created
+car === window; // true
+
+function Vehicle(type, wheelsCount) {
+    this.type = type;   
+    this.wheelsCount = wheelsCount; 
+    return this;    
+}
+
+// a new object is created and initialized
+const car1 = new Vehicle("Car", 4);
+car1.type;   // "Car"
+car1.wheelsCount;    // 4
+
+// makes sure the execution context is a correct object type
+car1 instanceof Vehicle;    // true
+
+// function invocation instead of a constructor invocation, an error is thrown
+const brokenCar = Vehicle("Broken Car", 3);
+
+/* indirect invocation - performed when a function is called using myFun.call() or myFun.apply() methods
+functions in JS are first-class objects; the type of function object is Function
+a function object has a list fo methods, including .call() and .apply()
+.call() and .apply() are used to invoke the function with a configurable context
+
+myFunction.call(thisArg, arg1, arg2, ...) accepts the first argument thisArg as the context of the invocation 
+and a list of arguments arg1, arg2, ... that are passed as arguments to the called function
+
+myFunction.apply(thisArg, [arg1, arg2, ...]) accepts the first argument thisArg as the context of the invocation 
+and an array og arguments [arg1, arg2, ...] that are passed as arguments to the called function
+4.1 this in an indirection invocation */
+
+function sum(number1, number2) {
+    return number1 + number2;
+}
+
+sum.call(undefined, 10, 2);     // 12
+sum.apply(undefined, [10, 2]);      // 12
+
+/* this is the value passed as first argument to .call() or .apply() in indirect invocation */
+
+// indirect invocation is useful when a function should be executed within a specific context
+// used to simulate a method call on an object
+const rabbit1 = {name: "White Rabbit"};
+
+function concatName(string) {
+    console.log(this === rabbit1);  // true
+    return string + this.name;
+}
+
+concatName.call(rabbit1, "Hello "); // "Hello White Rabbit"
+concatName.apply(rabbit1, ["Bye "]);    // Bye White Rabbit"
+
+// create hierarchies of classes in ES5 to call the parent constructor
+function Runner(name) {
+    console.log(this instanceof Rabbit);    // true
+    this.name = name;
+}
+
+function Rabbit(name, countLegs) {
+    console.log(this instanceof Rabbit);    // true
+    
+    // Indirect invocation. Call parent constructor.
+    // makes an indirect call of the parent function to initialize the object
+    Runner.call(this, name);
+    this.countLegs = countLegs;
+}
+
+const myRabbit = new Rabbit("White Rabbit", 4);
+myRabbit;   // {name: "White Rabbit", countLegs: 4}
+
+/* bound function - function whose context and/or arguments are bound to specific values
+create a bound function using .bind() method
+.bind() creates a new function, whose invocation will have the context as the first argument passed to .bind()
+the original and bound functions share the same code and scope, but different contexts and arguments on execution
+myFunc.bind(thisArg[, arg1, arg2, ...) accepts the first argument thisArg as the context and an optional list of arguments
+arg1, arg2, ... to bound to
+.bind() returns a new function whose context is bound to thisArg and arguments to arg1, arg2, ... */
+
+/* 5.1 this inside a bound function */
+
+function multiply(number) {
+    "use strict";
+    return this * number;
+}
+
+// create a bound function with context; returns a new function object double, which is bound to number 2
+// multiply and double have the same code and scope
+const double = multiply.bind(2);
+
+// invoke the bound function 
+double(3);
+double(10);
+
+/* unlike .apply() and .call() methods, which invoke the function right away, the .bind() method only returns a new function
+supposed to be invoked later with a pre-defined this value */
+
+const numbers3 = {
+    array: [3, 5, 10],
+
+    getNumbers() {
+        return this.array;
+    }
+};
+
+// Create a bound function
+// the context  of boundGetNumbers is bound to numbers3
+const boundGetNumbers = numbers3.getNumbers.bind(numbers3);
+
+// boundGetNumbers() is invoked with this as numbers3 and returns the correct array object
+boundGetNumbers();  // [3, 5, 10]
+
+const simpleGetNumbers = numbers3.getNumbers;
+// this is window or undefined in strict mode, so the correct array is not returned 
+simpleGetNumbers(); // undefined
+
+/* .bind() makes a permanent context link and will always keep it
+only the constructor invocation of a bound function can change an already bound context, but this is not normally done
+5.2 tight context binding */
+
+function getThis() {
+    "use strict";
+    return this;
+}
+
+const one = getThis.bind(1);
+
+one();  // 1
+one.call(2);  // 1
+one.apply(2);  // 1
+one.bind(2)();  // 1
+
+new one();  // getThis{} object
+
+
+/* lexical scope/static scope - based on where variables and blcoks of code are defined in the source code during the 
+compilation phase rather than where the code is executed during runtime
+arrow function - designed to declare the function in a shorter form and lexically bind the context */
+
+const hello1 = (name) => {
+    return "Hello " + name;
+};
+
+hello1("World");    // "Hello World"
+
+[1, 2, 5, 6].filter(item => item % 2 === 0);   // [2, 6] 
+
+/* arrow functions don't have the function keyword
+when the arrow function has only 1 statement, I can even omit the return keyword 
+an arrow function is anonymous, but its name can be inferred
+an arrow function doesn't provide the arguments object, and the missing arguments is fixed using ES2015 rest parameters */
+
+const sumArguments = (...args) => {
+    console.log(typeof arguments);  // undefined
+    return args.reduce((result, item) => result + item);
+};
+
+sumArguments.name;  // " "
+sumArguments(5, 5, 6);  // 16
+
+/* 6.1 this in arrow function 
+arrow function takes this from the outer function where it is defined, aka resolves this lexically 
+
+context transparency property */
+class Point {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    log() {
+        console.log(this === myPoint);  // true
+
+        // setTimeout() calls the arrow function with the same context (myPoint object) as the log() method
+        // the arrow function inherits the context from the function where it is defined
+        setTimeout(() => {
+            console.log(this === myPoint);  // true
+            console.log(this.x + ":" + this.y);     // "95:165"
+        }, 1000);
+    }
+}
+const myPoint = new Point(95, 165);
+myPoint.log();
+
+// if the arrow function is defined in the topmost scope (outside any function), the context is always the global object (window)
+const getContext = () => {
+    console.log(this === window);   // true
+    return this;
+};
+
+console.log(getContext() === window);   // true 
+
+// an arrow function is bound with the lexical this once and forever; this cannot be modified even when using the 
+// context modification methods
+const numbers4 = [1, 2];
+
+(function() {
+    const get = () => {
+        console.log(this === numbers4); // true
+        return this;
+    };
+
+    console.log(this === numbers4); // true
+    get(); // [1, 2]
+
+    get.call([0]); // [1, 2]
+    get.apply([0]); // [1, 2]
+
+    get.bind([0])(); // [1, 2]
+}).call(numbers4);
+
+/* pitfall: DO NOT define method with an arrow function */
+function Period(hours, minutes) {
+    this.hours = hours;
+    this.minutes = minutes;
+}
+
+// defines a method format() on a class Period using an arrow function
+// format() is defined in the global context/topmost scope, so this is the window object
+Period.prototype.format = () => {
+    console.log(this === window);   // true
+    return this.hours + " hours and " + this.minutes + " minutes";
+};
+
+const walkPeriod = new Period(2, 30);
+
+// window is kept as the context of invocation because the arrow function has a static context 
+walkPeriod.format();    // "undefined hours and undefined minutes"
+
+// function expression solves the problem because a regular function does change its context depending on invocation
+function Period(hours, minutes) {
+    this.hours = hours;
+    this.minutes = minutes;
+}
+
+Period.prototype.format = function() {
+    console.log(this === walkPeriod1);   // true
+    return this.hours + " hours and " + this.minutes + " minutes";
+};
+
+const walkPeriod1 = new Period(2, 30);
+
+// method invocation on an object with the context walkPeriod object
+walkPeriod1.format();   // "2 hours and 30 minutes"  
 

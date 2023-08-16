@@ -160,3 +160,130 @@ myButton.onclick = () => {
 when I cancel the prompt, the myName value is set as null
 null - value that refers to the absence of a value
 */
+
+let arr = ["Amy", "Kai"];
+/* in the console, typing arr. gives me access to lots of built-in methods and properties 
+Where does arr get that access? From Object.prototype */
+
+let object = {
+    name: "Amy",
+    city: "Philadelphia",
+    getIntro: function() {
+        // if I want to access the property on the object, object.property
+        console.log(this.name + " from " + this.city);
+    }
+}
+
+function fun() {
+    // 
+}
+
+/* when I create an object, JS engine automatically attaches hidden methods and properties into an object,
+and attaches that object to the created object,
+even when that object is a function 
+prototype is an object that is attached to each and every object, method, array, function, etc., which gives me 
+access to built-in methods and properties using a dot operator 
+
+for an array...
+
+array's prototype is Array.prototype
+Array.prototype's prototype is Object.prototype
+Object.prototype's prototype is null 
+
+object's prototype is object.prototype
+object.prototype's prototype is Object.prototype
+Object.prototype's prototype is null 
+
+function's prototype is Function.prototype
+Function.prototype's prototype is Object.prototype
+Object.prototype's prototype is null */
+
+let object2 = {
+    name: "Stefan"
+}
+
+Function.prototype.mybind = function() {
+    console.log("foo bar baz");
+}
+
+function fun() {    // this function will have access to the mybind method becaue .mybind has been set on the function's prototype
+    // 
+}
+
+/* this is the keyword that references the object calling the current running function */
+
+function test()
+{
+    console.log(this);
+}
+
+test(); // test is being executed from the global scope, so the object that is calling it is window
+
+const user = {
+    firstName: "Patrick",
+    lastName: "Scott",
+    fullName: function() {
+        console.log(this)   
+        console.log(this.firstName + " " + this.lastName)
+    }
+}
+
+user.fullName();    // this is now the user object
+
+const user2 = {
+    firstName: "Patrick",
+    lastName: "Scott",
+    fullName: () => {   // arrow functions don't have their own this scope!
+                        // instead, an arrow function inherits the scope of nearest containing regular function
+        console.log(this)   
+        console.log(this.firstName + " " + this.lastName)
+    }
+}
+
+user2.fullName();    // this is now the global object, window
+
+const user3 = {
+    firstName: "Patrick",
+    lastName: "Scott",
+    fullName: function() {
+        const arrowFunction = () => {   // now the arrow function's nearest containing regular function is fullName: function()
+                                        // and the scope of fullName: function() is the user3 object
+            console.log(this)   
+            console.log(this.firstName + " " + this.lastName)
+        }
+
+        arrowFunction();
+    }
+}
+user3.fullName();    // this is now the user3 object
+
+const user4 = {
+    firstName: "Patrick",
+    lastName: "Scott",
+    hobbies: ["programming", "piano"],
+    listHobbies: function() 
+    {
+        this.hobbies.forEach(function(hobby) {  // inside of listHobbies, I grab the user4's hobbies, loop over them, and print them out
+            // the this above is actually the window object
+            // console.log(this.firstName)  won't work because this will not be the user4 object
+            // .forEach(function(hobby)) is technically being called from the global scope, the window
+            // how to resolve this issue? forEach can take a second parameter: an object that I want to use as the this reference
+            console.log(this.firstName)
+            console.log(hobby)
+            // }, {test: "test"}); test will be used as the this reference for each callback function
+        }, this);   // pass in the this reference from the listHobbies function which is user4
+    }   
+}
+user4.listHobbies();    
+
+// ***Not all methods allow me to pass in my own this reference; forEach lets me do that
+
+function User(name) {
+    this.name = name;
+    console.log(this);
+}
+
+const amy = new User("Amy");    // whenever I create a new object using the new keyword, this will refer to that specific object
+                                // in this case, amy, the one I just created
+const codingPhase = new User("CodingPhase");
+
