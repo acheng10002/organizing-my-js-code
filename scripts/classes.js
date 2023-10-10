@@ -1,4 +1,4 @@
-/* 2 kinds of object properties:
+/* *2 kinds of object properties:
    data properties
    accessor properties - functions that execute on getting and setting a value, but look like regular properties to an external code */
 
