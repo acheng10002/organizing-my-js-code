@@ -2237,13 +2237,14 @@ sniffles.talk() // "woof"
 
 // if the talk() method is assigned to a click handler, things will break
 // the this keyword inside the talk method will not be sniffles, instead the DOM element
-$('button.myButton').click(sniffles.talk)
+$('button.myButton').click(sniffles.talk) // won't work
 
 // bind forces the this to be sniffles
 $('button.myButton').click(sniffles.talk.bind(sniffles))
 
 // wrap the talk() function in a function
 $('button.myButton').click(_ => sniffles.talk())
+
 
 // Dog2 factory function
 const Dog2 = () => {

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <!-- <title>Getting Started</title> -->
+        <!-- <script src="https://unpkg.com/lodash@4.17.20"></script> -->
+        <title>Asset Management</title>
+    </head>
+    <body>
+        <!-- <script src="./src/index.js"></script> -->
+        <!-- <script src="main.js"></script> -->
+        <!-- I need to include the using named exports scripts in my HTML with a script element of type="module"
+             I can't run JS modules via a file:// URL - I'll get CORS errors
+             I need to run it via an HTTP server-->
+        <script src="bundle.js"></script>
+    </body>
+</html>
+<!-- Basic Setup
+     I need to adjust my package.json file to make sure I mark my package as private, and removing the main entry
+     there are implicit dependencies between the <script> tags
+     index.js file depends on lodash being included in the page before it runs 
+     index.js never explicitly declared a need for lodash; it assumes the global varible _ exists 
+
+     installed webpack using npm,
+     set up a simple project that required an external library (lodash) using a simple script tag
+     this is not ideal; a webpack should be used to accomplish this
+    
+     Modules
+     import and export statements have been standarized in ES2015 
+     webpack actually transpiles the code so that older browsers can also run it 
+     besidesd import and export, webpack supports other module syntaxes, Module API
+     webpack will not alter any code other than import and export statements 
+     if I am using other ES2015 features, I need to use a transpiler such as Babel via webpack's loader system 
+    
+     Using a Configuration
+     as of version 4, webpack doesn't require any configuration, but most projects will need a more complex setup, which is why webpack supports a configuration file 
+     --config option is used, but I can pass a configuration of any name 
+        this will be useful for more complex configurations that need to be split into multiple files 
+     a configuration files allows far more flexibility than CLI usage
+        I can specify loader ryles, plugins, resolve options and many other enhancements 
+     src - my source directory
+           where I write all of the code that webpack is going to bundle up for me
+     when webpack runs, it goes through all of my files, 
+     starting at any entry points I give it,
+     looks for any import statements,
+     and then compiles all of the code I need to run my site into a single file per entry point inside of the dist (short for distribution) folder
+     my example has a single entry point, /src/index.js
+     its output file is the compiled version, dist/main.js
+    
+     NPM Scripts
+     adjust package.json by adding an npm script 
+     npm run build command can be used in place of the npx command 
+     within scripts, I can reference locally installed npm packages by name, the same way I did with npx 
+     this convention is the standard in most npm-based projects because it allows all contributors to use the same set of common scripts 
+     custom parameters can be passed to webpack by adding two dashes between the npm run biuld command and my parameters
+     e.g. npm run build -- --color 
+    
+     warning: do not compile untrusted code with webpack
+        it could lead to execution of malicious code on my computer, remote servers, or in the browsers of the end users of my application -->
+     

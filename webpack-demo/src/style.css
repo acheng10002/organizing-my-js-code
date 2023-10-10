@@ -1,0 +1,16 @@
+
+/* with the loader configured and fonts in place, I can incorporate them via an @font-face declaration
+   the local url(...) directive will be picked up by webpack, as it was with the image */
+@font-face {
+    font-family: 'MyFont';
+    src: url('./my-font-1.woff') format('woff'),
+        url('./my-font-2.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+.hello {
+    color: red;
+    font-family: 'MyFont';
+    background: url('./icon.png');
+}
