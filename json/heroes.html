@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Our superheroes</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Faster+One" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+
+      <header>
+
+      </header>
+
+      <section>
+
+      </section>
+
+      <script>
+        // keyword async before the name of the function that uses the fetch API
+        async function populate() {
+            // requestURL variable stores the GitHub URL
+            const requestURL =
+                "https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json";
+            // use the URL to initialize a new Request object
+            const request = new Request(requestURL);
+
+            /* API called Fetch is used to obtain the JSON
+               API - application programming interface - contract of service between two applications; 
+               defining how two applications communicate with each other using requests and responses 
+               Fetch API is built into the browser, and lets me make async requests to network resources
+                    by using git, post, put, etc.
+               lets me make network requests to retrieve resources from a server via JavaScript 
+               (e.g. images, text, JSON, and even HTML snippets), so I can update small sections of 
+               content without having to reload the entire page
+            */
+
+            /* make an asynchronous HTTP network request to a server using the fetch function
+               pause the execution of an async function until a `Promise` is settled (either fullfilled or rejected) 
+               returns a Response object (the `Promise`)
+               code execution within the async function is paused until the `fetch` operation completes
+               (next line of code will not execute until the `fetch` operation has completed)
+               the resolved value of `Promise`/response from ther `fetch` call, is then assigned to 
+               the response constant
+               keyword await before the calls to any asynchronous functions
+            */
+            const response = await fetch(request);
+            /* use the json function of the Response object to retrieve the response as JSON
+               superHeros variable will contain the JavaScript object based on the JSON
+            */
+            const superHeroes = await response.json();
+            /* passing the object to two functions calls 
+               first one fills the <header> with the correct data, 
+               second one creates an information card for each hero on the team and inserts it into the <section>
+            */
+            populateHeader(superHeroes);
+            populateHeroes(superHeroes);
+        }
+
+        /* retrieved the JSON data and converted it into a JavaScript object 
+           now to make use of the object by writing the two functions
+        */
+
+        function populateHeader(obj) {
+            const header = document.querySelector("header");
+            // create an h1 element 
+            const myH1 = document.createElement("h1");
+
+            // set its textContent to equal the squadName property of the object
+            myH1.textContent = obj.squadName;
+            header.appendChild(myH1);
+        
+            // create a paragraph
+            const myPara = document.createElement("p");
+
+            // sets its textContent to a template literal containing both the homeTown and formed properties of the object
+            myPara.textContent = `Hometown: ${obj.homeTown} // FormedL ${obj.formed}`;
+            header.appendChild(myPara);
+        
+        }
+
+        function populateHeroes(obj) {
+            const section = document.querySelector("section");
+
+            /* store the members property of the object in a new variable
+               members array contains multiple objects with info for each hero
+            */
+            const heroes = obj.members;
+            
+            // loop through each object in the array
+            for (const hero of heros) {
+
+                // create several new elements
+                const myArticle = document.createElement("article");
+                const myH2 = document.createElement("h2");
+                const myPara1 = document.createElement("p");
+                const myPara2 = document.createElement("p");
+                const myPara3 = document.createElement("p");
+                const myList = document.createElement("ul");
+
+                // set the <h2> to contain the current hero's name
+                myH2.textContent = hero.name;
+
+                /* fill the three paragraphs with their secretIdentify, age, and a line saying "Superpowers:"
+                   to introduce the info in the list 
+                */
+                myPara1.textContent = `Secret identity: ${hero.secretIdentity}`;
+                myPara2.textContent = 'Age: ${hero.age}';
+                myPara3.textContent = "Superpowers:";
+
+                /* store the powers property in another new constant called superPowers, that contains an 
+                   array that lists the current hero's superpowers
+                */ 
+                const superPowers = hero.powers;
+
+                /* loop through the current hero's superpowers, and for each one create an <li> element,
+                   put the superpower inside it, then put the listItem inside the <ul> element, myList
+                   using appendChild() 
+                */
+                for (const power of superPowers) {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = power;
+                    myList.appendChild(listItem);
+                }
+
+                /* append the <h2>, <p>s, and <ul> inside the <article>, then append the <article> inside
+                   the <section> 
+                */
+                myArticle.appendChild(myH2);
+                myArticle.appendChild(myPara1);
+                myArticle.appendChild(myPara2);
+                myArticle.appendChild(myPara3);
+                myArticle.appendChild(myList);
+
+                section.appendChild(myArticle);
+            }
+        }
+
+        // call my top-level populate() function
+        populate();
+
+        /* const section = document.querySelector('section');
+
+let para1 = document.createElement('p');
+let para2 = document.createElement('p');
+let motherInfo = 'The mother cats are called ';
+let kittenInfo;
+const requestURL = 'https://mdn.github.io/learning-area/javascript/oojs/tasks/json/sample.json';
+
+fetch(requestURL)
+  .then(response => response.text())
+  .then(text => displayCatInfo(text))
+
+function displayCatInfo(catString) {
+  let total = 0;
+  let male = 0;
+
+  const catsInfo = JSON.parse(catString);
+
+  let numberOfKittens = 0;
+  let numberOfMaleKittens = 0;
+  let numberOfFemaleKittens = 0;
+
+  for (cat of catsInfo) {
+     let groupOfKittens = cat.kittens;
+     numberOfKittens += groupOfKittens.length;
+     let motherName = cat.name;
+     if (motherName === catsInfo[2].name) {
+         motherInfo = motherInfo + `and ${motherName}.`;
+     } else {
+         motherInfo = motherInfo + `${motherName}, `;
+     }
+     
+     for (kitten of groupOfKittens) {
+         if (kitten.gender === "f") {
+              numberOfFemaleKittens++;  
+         } else {
+              numberOfMaleKittens++;
+         }
+     }
+     
+  }
+  kittenInfo = `The total number of kittens is ${numberOfKittens}, ${numberOfFemaleKittens} females and ${numberOfMaleKittens} males.`;
+
+
+// Add your code here
+
+// Don't edit the code below here!
+
+  para1.textContent = motherInfo;
+  para2.textContent = kittenInfo;
+}
+
+section.appendChild(para1);
+section.appendChild(para2);
+        
+        
+           above, the network response was converted directly into a JavaScript object using response.json()
+           sometimes I receive a raw JSON string, and I need to convert it to an object myself
+           when I want to send a JavaScript object across the network, I need to convert it to JSON (a string)
+           before sending it
+           a built-in JSON object is available in browsers, and it contains two methods, parse() and stringify()
+           parse() - accepts a JSON string as a parameter and returns the corresponding JavaScript object
+           stringify() - accepts an object as a parameter, and returns the equivalent JSON string
+        
+           async function populate() {
+            const requestURL = 
+                "https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json";
+            const request = new Request(requestURL);
+
+            const response = await fetch(request);
+
+            retrieve the response as text rather than JSON by calling the text() method of the response
+            const superHeroesText = await response.text();
+
+            parse() converts the text to a JavaScript object
+            const superHeroes = JSON.parse(superHeroesText);
+            populateHeader(superHeroes);
+            populateHeroes(superHeroes);
+           }
+        
+           creates a JavaScript object
+           let myObj = {name: "Chris", age: 38};
+           myObj;
+           converts the object to a JSON string using stringify(), saving the return value in a new variable
+           let myString = JSON.stringify(myObj);
+           myStringl
+        */
+        /*
+        hitting this fake api which is going to give me back some fake data
+        fetch takes two properties: first property is the url and the second optional property is all 
+        the different options I want to pass to it ex. I want a post request instead of a get request
+        fetch('https://regres.in/api/users'), {
+        })
+
+        console.log(fetch('https://regres.in/api/users'));   // gives me a promise
+
+        since fetch is promise-based, I can use .then, .catch, and async await with it
+        fetch('https://regres.in/api/users'), {
+            method: 'POST',
+            I need to tell fetch that I am going to be passing JSON
+            whenever I hae JSON data that I am posting to the server, I need to set the header to the 
+            correct content type of application AND I need to stringify the body (a JavaScript option needs
+            to be converted into a JSON string)
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            user won't be saved properly because the body needs to sent up in JSON
+            and I need to stringy the object that I am passing
+            body: JSON.stringify{
+                name: 'User 1'
+            }
+        }).then(res -> {
+            return res.json();
+        })
+            .then(data => console.log(data));
+            .catch(error => console.log('ERROR'));
+
+
+            fetch will return a response
+            res.json will return another promise
+            .then(res => {
+                if (res.ok) {
+                    console.log('SUCCESS');
+                } else {
+                    console.log('Not Successful');
+                }
+            res.json());
+            .then(data => console.log(data));
+            .catch(error => console.log('ERROR'));
+
+        fetch will always succeed, even if I get a failed response, unless there is a network error
+        with fetch, I often want to do more than just get data from the server, I want to post data
+        to a server, update data, delete data, and to do that I need to options section of the fetch method
+
+        
+        body of data is not accessible directly from the response object
+        a method has be called on the response, to convert the response to JSON
+
+        returns a promise that logs making a request 
+        function makeRequest(location) {
+            return new Promise((resolve, reject) => {
+                console.log(`Making Request to ${location}`);
+                logs successfully if I send in a location of Google
+                if (location === 'Google') {
+                    resolve('Google says hi');
+                rejects if I do not send in a location of Google
+                } else {
+                    reject('We can only talk to Google');
+                }
+            })
+        }
+
+        function processRequest(response) {
+            return new Promise((resolve, reject) => {
+                console.log('Processing response');
+                // simple request here that adds a little more information onto the string that I pass into it
+                resolve(`Extra information + ${response}`)
+            })
+        }
+
+        call makeRequest function, passing Google 
+        the response, a string, is returned by my promise
+        all this code executes in order, and it waits for the previous code to execute 
+        before going on to the next code
+        makeRequest('Google').then(response => {
+            console.log('Response Received');
+            return the promise that it can be used in my chained then
+            return processRequest(response);
+        }).then(processedResponse => {
+            console.log(processedResponse);
+        }).catch(err => {
+            console.log(err);
+        })
+
+        Get away from aall the .then's and the nesting
+        I need a function that my awaiting code is inside of
+        all async code will go inside the function (ALL ASYNC CODE MUST BE WRAPPED INSIDE A FUNCTION,
+        COULD BE ANONYMOUS, ARROW, OR NORMAL)
+        telling JavaScript that it's async, so that it knows how to handle the await code
+        async function doWork() {
+            code should wait until this makeRequest is finished before executing the next thing
+            makeRequest here will just return resolve section of the promise
+            await means wait and then as soon as makeRequest finishes executing,
+            it'll come back to makeRequest and return the resolve into the response variable
+            try code will be executed, and if there's an error, it will leave and call the code inside 
+            the catch section
+            try {
+                await keyword needs to be here, before all the different code that's going to be aysynchronous
+                because otherwise, it'll just return the promise and not return the result of the promise being executed
+                const response = await makeRequest('Google');
+                console.log('Response Received');
+                const processedRequest = await processRequest(response);
+                console.log(processedResponse);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        doWork();
+
+
+        promise object takes one parameter, a function, that gets passed two variables, resolve and reject
+        let p = new Promise((resolve, reject) => {
+            let a = 1 + 1;
+            if (a == 2) {
+                resolve('Success');
+            } else {
+                reject('Fail'); 
+            }
+        });
+
+        anything inside of a then runs for resolve (which has the single parameter, 'Success')
+        then takes a method, to find out what to do with that function
+        then will be called when the promise resolves successfully
+        p.then((message) => {
+            console.log('This is in the then ' + message);
+        catches errors which are the reject states, and like the then, pass one parameter
+        catch will be called if the promise is rejected
+        }).catch((message) => {
+            console.log('This is in the catch ' + message);
+        });
+
+        promises are similar to callbacks, but are cleaner
+        promises are great when I am doing something that takes a long time in the background,
+        and I want to do something after it's complete instead of making everything else wait for it
+        I can catch it to see if the promise was rejected, and I can try again or give the user an error message
+
+        const userLeft = false;
+        const userWatchingCatMeme = false;
+
+        function watchTutorialCallblack(callback, errorCallback) {
+            if (userLeft) {
+                errorCallback({
+                    name: 'User Left',
+                    message: ':('
+                })
+            } else if (userWatchingCatMeme) {
+                errorCallback({
+                    name: 'User Watching Cat Meme',
+                    message: 'WebDevSimplified < Cat'
+                })
+            } else {
+                callback('Thumbs up and Subscribe')
+            }
+        }
+
+        watchTutorialCallback((message) => {
+            console.log('Success: ' + message)
+        }, (error) => {
+            console.log(error.name + ' ' + error.message)
+        })
+
+
+        having promises is better than starting to nest callbacks
+        function watchTutorialPromise() {
+            returning a promise here instead of calling the callbacks
+            return new Promise ((resolve, reject) => {
+                if (userLeft) {
+                    reject({
+                        name: 'User Left',
+                        message: ':('
+                    })
+                } else if (userWatchingCatMeme) {
+                    reject({
+                        name: 'User Watching Cat Meme',
+                        message: 'WebDevSimplified < Cat'
+                    })
+                } else {
+                    resolve('Thumbs up and Subscribe')
+                }
+            })
+        }
+
+        watchTutorialPromise().then(message) => {
+            console.log('Success: ' + message)
+        }).catch((error) => {
+            console.log(error.name + ' ' + error.message)
+        })
+
+        const recordVideoOne = new Promise((resolve, reject) => {
+            resolve('Video 1 Recorded');
+        })
+
+        const recordVideoTwo = new Promise((resolve, reject) => {
+            resolve('Video 2 Recorded');
+        })
+
+        const recordVideoThree = new Promise((resolve, reject) => {
+            resolve('Video 3 Recorded');
+        })
+
+        if I want to run all my promises in parallel instead of waiting for one before starting the next
+        put all the promises that I want to run in the array
+        Promise.all([
+            recordVideoOne,
+            recordVideoTwo,
+            recordVideoThree,
+        when all my promises run, return, and are done, call the .then method  
+        sends me an array with all of the resolved parameters
+        ]).then((messages) => {
+            console.log(messages)
+        })
+
+        if I want to do something as soon as one promise is resolved
+        Promise.race([
+            recordVideoOne,
+            recordVideoTwo,
+            recordVideoThree,
+        ]).then((message) => {
+            console.log(message)
+        })
+        */
+      </script>
+  </body>
+</html>
