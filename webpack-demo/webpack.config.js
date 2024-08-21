@@ -1,62 +1,77 @@
-const path = require('path');
+const path = require("path");
 
 // configure toml, yamljs, and json5 in my webpack configuration
-const toml = require('toml');
-const yaml = require('yamljs');
-const json5 = require('json5');
+const toml = require("toml");
+const yaml = require("yamljs");
+const json5 = require("json5");
 
 module.exports = {
-    entry: './src/index.js',
-    mode: 'development',
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-    },
-    module: {
-        rules: [
-            {
-                test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
-            },
-            {
-                test: /\.(png|svg|jpg|jpeg|gif)$/i,
-                type: 'asset/resource',
-            },
-            {
-                test: /\.(woff|woff2|eot|ttf|otf)$/i,
-                type: 'asset/resource',
-            },
-            {
-                test: /\.(csv|tsv)$/i,
-                use: ['csv-loader'],
-            },
-            {
-                test: /\.xml$/i,
-                use: ['xml-loader'],
-            },
-            {
-                test: /\.toml$/i,
-                type: 'json',
-                parser: {
-                    parse: toml.parse,
-                },
-            },
-            {
-                test: /\.yaml$/i,
-                type: 'json',
-                parser: {
-                    parse: yaml.parse,
-                },
-            },
-            {
-                test: /\.json5$/i,
-                type: 'json',
-                parser: {
-                    parse: json5.parse,
-                },
-            },
-        ],
-    },
+  entry: "./src/index.js",
+  mode: "development",
+  output: {
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist"),
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: "asset/resource",
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: "asset/resource",
+      },
+      {
+        test: /\.(csv|tsv)$/i,
+        use: ["csv-loader"],
+      },
+      {
+        test: /\.toml$/i,
+        type: "json",
+        parser: {
+          parse: toml.parse,
+        },
+      },
+      {
+        test: /\.yaml$/i,
+        type: "json",
+        parser: {
+          parse: yaml.parse,
+        },
+      },
+      {
+        test: /\.json5$/i,
+        type: "json",
+        parser: {
+          parse: json5.parse,
+        },
+      },
+    ],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(?:js|mjs|cjs)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            "exclude": [
+                // \\ for Windows, / for macOS and Linux
+                /node_modules/core-js,
+                /node_modules/webpack/buildin
+              ],
+            presets: [["@babel/preset-env", { targets: "defaults" }]]
+          },
+        },
+      },
+    ],
+  },
 };
 
 /* Loading CSS

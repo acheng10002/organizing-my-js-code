@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>ES6 Modules</title>
@@ -14,7 +14,20 @@
       <script type='text/javascript' src='/bundle.js'></script> 
     -->
   </head>
-  <body>
-        <script src="scripts/es6-modules.js"></script> 
-  </body>
+  <body></body>
+  <!-- <script src="scripts/es6-modules.js"></script> -->
+  <!-- greeting is not defined in two.js, but these two scripts are loaded one after
+    the other into the same global scope 
+    if two.js script tag was put first, I'd get an error, greeting is not defined 
+    
+    even if I use multiple JS files, they will end up sharing the same global scope,
+    so my top-level variables are not safe! 
+  <script src="one.js" defer></script>
+  <script src="two.js" defer></script>
+  -->
+  <!--  entry point - single file link JS files to my HTML 
+    to use the export declaration in a source file, the file must be interpreted by
+    the runtime as a module by being imported by another module, or by modifying the
+    script tag below -->
+  <script src="two.js" type="module"></script>
 </html>

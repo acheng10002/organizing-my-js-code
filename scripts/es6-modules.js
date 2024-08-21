@@ -873,3 +873,68 @@
     myModule.doAllTheAmazingThings(); // myModule.doAllTheAmazingThings is imported by the next line
     import * as myModule from "/modules/my-module.js";
 */
+
+/* ES6 Modules 
+    Explain what ES6 modules are and how to import and export from them
+        ES6 modules - actual modules
+    Describe the difference between default and named exports
+        named exports - stick the export keyword in front of its declaration or add export { }
+                        somewhere in the file
+        default exports -a file can only default export a single thing 
+    Explain the main differences between CommonJS modules and ES6 modules 
+    
+    Before ES6 Modules, how would I privatize a variable from being accessible in other files?
+        use IIFEs to scope the variable to the function
+    Before ES6 Modules, how would I expose variables to be accessible in later files?
+        return the variable I want to expose from my IIFE
+    What are some benefits of writing code in modules? 
+        module pattern - design pattern that encapsulates code in modules
+                         lets us group related code together,
+                         manage dependencies
+                         avoids polluting the global namespace
+        more control, I can choose what to export and what to import
+    What is an entry point?
+        single file link to add all necessary JS dependencies to my HTML
+    How do I link a module script in HTML? 
+        <script src="two.js" type="module"></script>
+    
+    with module pattern, I can create a private scope within my module, variables and functions
+    defined inside a module aren't accessible from outside unless explicitly exposed 
+        I can selectively expose private functions and variables via a return object 
+    module pattern relies on IIFE to create a private scope 
+        IIFE - function that is defined and immediately executed, helps to create an isolated
+               scope for the module */
+
+// basic module pattern
+const MyModule = (function () {
+  const privateVariable = "I am private";
+
+  function privateFunction() {
+    console.log(privateVariable);
+  }
+
+  // Public API (exposing certain variables and functions)
+  return {
+    publicMethod: function () {
+      privateFunction();
+    },
+    publicVariable: "I am public",
+  };
+})();
+
+MyModule.publicMethod(); // outputs "I am private"
+console.log(MyModule.publicVariable); // outputs "I am public"
+console.log(MyModule.privateVariable); // Undefined (private)
+
+// ES6 Module
+// MyModule.js
+export const publicVariable2 = "I am public";
+export function publicMethod2() {
+  console.log("Hello from public method 2");
+}
+
+// main.js
+import { publicMethod2, publicVariable2 } from "./myModule.js";
+
+publicMethod2(); // outputs "Hello from public method 2"
+console.log(publicVariable2); // outputs "I am public"
