@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JavaScript Example</title>
+    <!-- this is how websites used to make with JS libraries! 
+     annoying thing is needing to find and download new versions of libraries
+     every time they would update
+    <script src="moment.min.js"></script> -->
+    <!-- now, no longer have to manually download moment.js from the website,
+     I can automatically download and update it using npm, the file will be in
+     the node_modules folder -->
+
+    <!-- this still isn't great, bc I need to dig through node_moduels to find
+     location of each package and manually include it in my HTML 
+     webpack - automates the process of searching node_modules to find packages,
+               bundle them, and include it in my HTML -->
+
+    <!-- JS was designed to only run in the browser with no access to the file 
+     system of the client's computer for security reasons
+     organizing JS code in multiple files required me to load each file with variables
+     shared globally -->
+
+    <!-- 
+    <script src="node_modules/moment/min/moment.min.js"></script>
+    <script src="index.js"></script> -->
+    <script src="./dist/main.js"></script>
+  </head>
+  <body>
+    <h1>Hello from HTML!</h1>
+  </body>
+</html>
+
+<!-- went from plain HTML and JS to using npm, a package manager to automatically download 3rd party packages
+ a webpack/module bundler to create a single script file (node.js require or import statements)
+ a babel/transpiler to use future JS features
+ a npm scripts/task runner to automate different parts of the build process 
+ 
+ hot reloading -
+ real-time linting -
+ time-travel debugging - 
+ 
+ there would still be performance issues with the more module files the browser would have to download individually
+ (especially as more third-party libraries would be imported) -->

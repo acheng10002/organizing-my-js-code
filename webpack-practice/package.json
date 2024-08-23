@@ -1,0 +1,22 @@
+{
+  "name": "webpack-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "comment1": "Webpack will only be used during development. The actual code that makes Webpack run will not be park of the code that the browser will run.",
+  "comment2": "node_modules is where Webpack's actual code and other stuff lives",
+  "comment3": "package-lock.json is another file npm uses to track package info",
+  "devDependencies": {
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
