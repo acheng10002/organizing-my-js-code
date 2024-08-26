@@ -1,3 +1,6 @@
+/* in dist directory, Webpack gives my bundled image a new name by 
+hashing its content */
+
 body {
   background-color: rebeccapurple;
 }

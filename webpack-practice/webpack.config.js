@@ -34,6 +34,10 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     clean: true,
   },
+  devtool: "eval-source-map",
+  devServer: {
+    watchFiles: ["./src/template.html"],
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/template.html",
@@ -45,6 +49,32 @@ module.exports = {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.html$/i,
+        loader: "html-loader",
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: "asset/resource",
+      },
     ],
   },
 };
+
+/* other things that may need a special loader or plugin, 
+custom fonts or preprocessors 
+
+webpack-dev-server - bundles my code behind the scenes, as if I ran npx 
+                     webpack, but without saving the files to dist 
+it does this every time I save a file that's used in the bundle 
+source map - tool that ensures error messages reference files and lines
+             from development code and not the code inside my single
+              bundled .js file 
+              
+eval-source-map adds a source map, that will also enable DevTools "Sources"
+tab to show my original untouched code 
+
+webpack-dev-server will only auto-restart when it detects any changes to 
+files I import into my JS bundle, so my HTML template will be ignored, 
+did thisby adding the HTML file to the dev server's array of watched files
+npx webpack serve */
